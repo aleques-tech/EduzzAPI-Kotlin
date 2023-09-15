@@ -1,6 +1,8 @@
 plugins {
     kotlin("jvm") version "1.9.20-Beta"
     kotlin("plugin.serialization")
+    id("pl.allegro.tech.build.axion-release")
+    `java-library`
     `maven-publish`
 }
 
@@ -27,13 +29,25 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    systemProperties["junit.jupiter.execution.parallel.enabled"] = true
+    systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+    jvmArgs = listOf("--add-opens", "java.base/java.lang.invoke=ALL-UNNAMED")
 }
 
 kotlin {
     jvmToolchain(11)
 }
 
-/*
-application {
-    mainClass.set("MainKt")
-}*/
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        register("mavenJava", MavenPublication::class) {
+            from(components["java"])
+        }
+    }
+}
