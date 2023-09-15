@@ -7,7 +7,6 @@
     <list default="true" id="a25e517f-5dce-469f-a90f-f68599e86f70" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/versions.properties" beforeDir="false" afterPath="$PROJECT_DIR$/versions.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -197,7 +196,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1694789539695</updated>
-      <workItem from="1694789540688" duration="5189000" />
+      <workItem from="1694789540688" duration="5315000" />
     </task>
     <servers />
   </component>

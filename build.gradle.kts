@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.aleques"
-version = "1.0-SNAPSHOT"
+project.version = scmVersion.version
 
 repositories {
     mavenCentral()
