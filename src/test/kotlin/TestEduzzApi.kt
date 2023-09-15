@@ -7,6 +7,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -18,6 +19,7 @@ class TestEduzzApi {
         ignoreIfMissing = true
     }
     private lateinit var eduzz: EduzzApiProvider
+    private lateinit var today: String
 
     @BeforeTest
     fun initialize() {
@@ -26,20 +28,23 @@ class TestEduzzApi {
                 dotenv["EDUZZ_LOGIN"], dotenv["EDUZZ_PUBKEY"], dotenv["EDUZZ_APIKEY"]
             )
         )
+        val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val now = LocalDate.now()
+        today = now.format(dateFormat)
     }
 
     @Test
-    fun testFetch() {
-        runBlocking {
-            val fin = eduzz.getFinancialStatement("2020-10-01", "2020-12-08")
-            fin.forEach {
-                println(Json.encodeToString(it))
-            }
+    fun testFetchFinancialStatements() = runBlocking {
+        var saldo = 0.0
+        eduzz.getFinancialStatementList("2018-01-01", today).forEach {
+            saldo += it.statement_value
+            println("${it.statement_date} ${it.statement_description} ${it.statement_value} = $saldo")
         }
+
     }
 
     @Test
-    fun testTaxDocList() {
+    fun testTaxDocList() =
         runBlocking {
             val taxDoc = eduzz.getTaxDocList(
                 startDate = LocalDate.of(2023, 9, 1), endDate = LocalDate.now()
@@ -50,7 +55,14 @@ class TestEduzzApi {
             }
             val encoded = Json.encodeToString(pqp)
             println(encoded)
-//            println(pqp)
         }
+
+    @Test
+    fun testSalesList() = runBlocking {
+        val salesList  = eduzz.getSalesList("2023-09-01", today)
+
+        val encoded = Json.encodeToString(salesList)
+        println(encoded)
     }
 }
+

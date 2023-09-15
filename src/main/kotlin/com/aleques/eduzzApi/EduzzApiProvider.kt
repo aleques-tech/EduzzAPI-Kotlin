@@ -66,7 +66,6 @@ object EduzzDateTimeSerializer : KSerializer<Date> {
 
     override fun deserialize(decoder: Decoder): Date {
         val originStr = decoder.decodeString()
-        println("originStr = $originStr")
         val str = originStr.replace(" ", "T")
 
         val parsedStr = try {
@@ -412,7 +411,7 @@ data class EduzzFinancialStatement(
     var statement_id: Long,
     @Serializable(EduzzBrazilianFmtDateSerializer::class) var statement_date: Date,
     var statement_description: String,
-    var statement_document: String,
+    var statement_document: String?,
     var statement_value: Double
 )
 
@@ -559,7 +558,7 @@ class EduzzApiProvider(
         return eduzzSvcRetry { service.getMe(authToken).data.first() }
     }
 
-    suspend fun listSales(
+    suspend fun getSalesList(
         startDate: String,
         endDate: String,
         contractId: Int? = null,
@@ -599,7 +598,7 @@ class EduzzApiProvider(
         return retVal
     }
 
-    suspend fun getFinancialStatement(startDate: String, endDate: String): List<EduzzFinancialStatement> {
+    suspend fun getFinancialStatementList(startDate: String, endDate: String): List<EduzzFinancialStatement> {
         checkAuth()
         var done = false
         var page = 1
