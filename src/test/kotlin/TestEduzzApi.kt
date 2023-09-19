@@ -1,11 +1,13 @@
 import com.aleques.eduzzApi.EduzzApiProvider
 import com.aleques.eduzzApi.EduzzAuthData
 import com.aleques.eduzzApi.EduzzTaxDoc
+import com.aleques.eduzzApi.util.defaultEduzzApiHttpClientBuilder
 import io.github.cdimascio.dotenv.dotenv
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import okhttp3.logging.HttpLoggingInterceptor
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.test.BeforeTest
@@ -26,7 +28,8 @@ class TestEduzzApi {
         eduzz = EduzzApiProvider(
             EduzzAuthData(
                 dotenv["EDUZZ_LOGIN"], dotenv["EDUZZ_PUBKEY"], dotenv["EDUZZ_APIKEY"]
-            )
+            ),
+            defaultEduzzApiHttpClientBuilder.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
         )
         val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val now = LocalDate.now()
@@ -59,10 +62,16 @@ class TestEduzzApi {
 
     @Test
     fun testSalesList() = runBlocking {
-        val salesList  = eduzz.getSalesList("2023-09-01", today)
+        val salesList = eduzz.getSalesList("2023-09-01", today)
 
         val encoded = Json.encodeToString(salesList)
         println(encoded)
+    }
+
+    @Test
+    fun testSingleSaleGet() = runBlocking {
+        val sale = eduzz.getSale(63574904)
+        println(sale)
     }
 }
 

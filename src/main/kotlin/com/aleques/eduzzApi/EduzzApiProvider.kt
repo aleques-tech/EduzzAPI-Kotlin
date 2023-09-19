@@ -4,13 +4,13 @@ package com.aleques.eduzzApi
 
 
 import com.aleques.eduzzApi.util.eduzzSvcRetry
-import com.aleques.eduzzApi.util.getInterceptor
+import com.aleques.eduzzApi.util.buildHttpClient
+import com.aleques.eduzzApi.util.defaultEduzzApiHttpClientBuilder
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import kotlinx.coroutines.delay
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
-import retrofit2.HttpException
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.http.*
 import java.time.LocalDate
@@ -80,6 +80,7 @@ interface EduzzService {
 @ExperimentalSerializationApi
 class EduzzApiProvider(
     private val eduzzAuthProvider: EduzzAuthData,
+    private val httpClientBuilder: OkHttpClient.Builder = defaultEduzzApiHttpClientBuilder
 ) {
     companion object {
         private const val EDUZZBASEURL = "https://api2.eduzz.com/"
@@ -92,10 +93,11 @@ class EduzzApiProvider(
 
     private val json = Json { isLenient = false; ignoreUnknownKeys = false }
 
-    private val retrofit = getInterceptor(
+    private val retrofit = buildHttpClient(
         Retrofit.Builder().baseUrl(EDUZZBASEURL)
 //        .addConverterFactory(GsonConverterFactory.create(gson))
-            .addConverterFactory(json.asConverterFactory(contentType))
+            .addConverterFactory(json.asConverterFactory(contentType)),
+        httpClientBuilder
     ).build()
     private val service = retrofit.create(EduzzService::class.java)
     private var authToken: String? = null
