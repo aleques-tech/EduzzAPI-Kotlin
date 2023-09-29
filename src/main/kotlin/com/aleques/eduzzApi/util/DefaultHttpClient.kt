@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit
 internal val defaultEduzzApiHttpClientBuilder = OkHttpClient.Builder().connectTimeout(50, TimeUnit.SECONDS)
     .writeTimeout(50, TimeUnit.SECONDS).readTimeout(50, TimeUnit.SECONDS)
 
-internal fun buildHttpClient(
+internal fun setHttpClient(
     builder: Retrofit.Builder,
-    httpClientBuilder: OkHttpClient.Builder
+    httpClient: OkHttpClient
 ): Retrofit.Builder {
-    return builder.client(httpClientBuilder.build())
+    return builder.client(httpClient)
 }

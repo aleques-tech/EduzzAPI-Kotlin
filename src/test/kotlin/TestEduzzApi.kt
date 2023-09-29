@@ -30,6 +30,7 @@ class TestEduzzApi {
                 dotenv["EDUZZ_LOGIN"], dotenv["EDUZZ_PUBKEY"], dotenv["EDUZZ_APIKEY"]
             ),
             defaultEduzzApiHttpClientBuilder.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                .build()
         )
         val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val now = LocalDate.now()
