@@ -108,7 +108,7 @@ class EduzzApiProvider(
         val reply = eduzzSvcRetry { service.authenticate(email, publicKey, apiKey) }
         //println("status: ${reply.isSuccessful} ${reply.body()}")
         authToken = reply.data?.get("token")
-        println(authToken)
+//        println(authToken)
         return true
     }
 
