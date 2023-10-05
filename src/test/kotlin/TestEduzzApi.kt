@@ -21,7 +21,7 @@ class TestEduzzApi {
         ignoreIfMissing = true
     }
     private lateinit var eduzz: EduzzApiProvider
-    private lateinit var today: String
+    private lateinit var today: LocalDate
 
     @BeforeTest
     fun initialize() {
@@ -32,15 +32,14 @@ class TestEduzzApi {
             defaultEduzzApiHttpClientBuilder.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build()
         )
-        val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val now = LocalDate.now()
-        today = now.format(dateFormat)
+        today = LocalDate.now()
+
     }
 
     @Test
     fun testFetchFinancialStatements() = runBlocking {
         var saldo = 0.0
-        eduzz.getFinancialStatementList("2018-01-01", today).forEach {
+        eduzz.getFinancialStatementList(LocalDate.of(2023, 1, 1), today).forEach {
             saldo += it.statement_value
             println("${it.statement_date} ${it.statement_description} ${it.statement_value} = $saldo")
         }
@@ -63,8 +62,7 @@ class TestEduzzApi {
 
     @Test
     fun testSalesList() = runBlocking {
-        val salesList = eduzz.getSalesList("2023-09-01", today)
-
+        val salesList = eduzz.getSalesList(LocalDate.of(2023, 9, 1), today)
         val encoded = Json.encodeToString(salesList)
         println(encoded)
     }

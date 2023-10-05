@@ -29,8 +29,8 @@ interface EduzzService {
     @GET("/sale/get_sale_list")
     suspend fun listSales(
         @Header("token") token: String?,
-        @Query("start_date") sd: String,
-        @Query("end_date") ed: String,
+        @Query("start_date") startDate: LocalDate? = null,
+        @Query("end_date") endDate: LocalDate? = null,
         @Query("page") page: Int?,
         @Query("contract_id") cId: Int? = null,
         @Query("affiliate_id") affId: Int? = null,
@@ -49,8 +49,8 @@ interface EduzzService {
     @GET("/financial/statement")
     suspend fun getFinancialStatement(
         @Header("token") token: String?,
-        @Query("start_date") sd: String,
-        @Query("end_date") ed: String,
+        @Query("start_date") sd: LocalDate,
+        @Query("end_date") ed: LocalDate,
         @Query("page") page: Int,
         @Query("per_page") perPage: Int? = 100
     ): EduzzFinancialStatementResponse
@@ -136,8 +136,8 @@ class EduzzApiProvider(
     }
 
     suspend fun getSalesList(
-        startDate: String,
-        endDate: String,
+        startDate: LocalDate,
+        endDate: LocalDate,
         contractId: Int? = null,
         affiliateId: Int? = null,
         contentId: Int? = null,
@@ -175,7 +175,7 @@ class EduzzApiProvider(
         return retVal
     }
 
-    suspend fun getFinancialStatementList(startDate: String, endDate: String): List<EduzzFinancialStatement> {
+    suspend fun getFinancialStatementList(startDate: LocalDate, endDate: LocalDate): List<EduzzFinancialStatement> {
         checkAuth()
         var done = false
         var page = 1
