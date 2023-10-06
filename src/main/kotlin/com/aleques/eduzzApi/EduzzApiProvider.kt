@@ -94,7 +94,8 @@ class EduzzAuthenticator(private val getToken: () -> String) : Authenticator {
 @ExperimentalSerializationApi
 class EduzzApiProvider(
         private val eduzzAuthProvider: EduzzAuthData,
-        httpClient: OkHttpClient = defaultEduzzApiHttpClientBuilder.build()
+        httpClient: OkHttpClient = defaultEduzzApiHttpClientBuilder.build(),
+        private val retryDelay: Long = 1200L
 ) {
     companion object {
         private const val EDUZZBASEURL = "https://api2.eduzz.com/"
@@ -123,7 +124,7 @@ class EduzzApiProvider(
 
     private suspend fun authenticate(): Boolean {
         val (email, publicKey, apiKey) = eduzzAuthProvider
-        val reply = eduzzSvcRetry { service.authenticate(email, publicKey, apiKey) }
+        val reply = eduzzSvcRetry(retryDelay) { service.authenticate(email, publicKey, apiKey) }
         //println("status: ${reply.isSuccessful} ${reply.body()}")
         authToken = reply.data?.get("token")
 //        println(authToken)
@@ -139,18 +140,18 @@ class EduzzApiProvider(
 
     suspend fun getLastDaysSaleAmount(days: Int? = null): List<EduzzLastDaysAmount> {
         checkAuth()
-        val r = eduzzSvcRetry { service.getLastDaysAmount(authToken, days) }
+        val r = eduzzSvcRetry(retryDelay) { service.getLastDaysAmount(authToken, days) }
         return r.data
     }
 
     suspend fun getSale(id: Long): EduzzGetInvoiceResponse {
         checkAuth()
-        return eduzzSvcRetry { service.getSale(authToken, id) }
+        return eduzzSvcRetry(retryDelay) { service.getSale(authToken, id) }
     }
 
     suspend fun getOwnUserInfo(): EduzzUserInfo {
         checkAuth()
-        return eduzzSvcRetry { service.getMe(authToken).data.first() }
+        return eduzzSvcRetry(retryDelay) { service.getMe(authToken).data.first() }
     }
 
     suspend fun getSalesList(
@@ -169,7 +170,7 @@ class EduzzApiProvider(
         var page = 1
         val retVal = emptyList<EduzzInvoice>().toMutableList()
         do {
-            val r = eduzzSvcRetry {
+            val r = eduzzSvcRetry(retryDelay) {
                 service.listSales(
                         authToken,
                         startDate,
@@ -200,7 +201,7 @@ class EduzzApiProvider(
         var page = 1
         val retVal = emptyList<EduzzFinancialStatement>().toMutableList()
         do {
-            val r = eduzzSvcRetry { service.getFinancialStatement(authToken, startDate, endDate, page) }
+            val r = eduzzSvcRetry(retryDelay) { service.getFinancialStatement(authToken, startDate, endDate, page) }
             page++
             retVal += r.data
             if (r.paginator.isNullOrEmpty() || page > (r.paginator!!.getOrDefault("totalPages", 1)
@@ -211,7 +212,7 @@ class EduzzApiProvider(
 
     suspend fun getTaxDoc(id: Long): EduzzGetTaxDocResponse {
         checkAuth()
-        return eduzzSvcRetry { service.getTaxDocument(authToken, id) }
+        return eduzzSvcRetry(retryDelay) { service.getTaxDocument(authToken, id) }
     }
 
     suspend fun getTaxDocList(
@@ -227,7 +228,7 @@ class EduzzApiProvider(
         var page = 1
         val retVal = emptyList<EduzzTaxDoc>().toMutableList()
         do {
-            val r = eduzzSvcRetry {
+            val r = eduzzSvcRetry(retryDelay) {
                 service.getTaxDocumentList(
                         authToken, startDate, endDate, page, 100, documentStatus, name, email, saleId
                 )
