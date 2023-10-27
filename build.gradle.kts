@@ -16,7 +16,10 @@ repositories {
 dependencies {
     //implementation(platform("org.jetbrains.kotlin:kotlin-bom:_"))
     compileOnly(Square.okHttp3.okHttp)
-    implementation(Square.retrofit2)
+    implementation("com.squareup.retrofit2:retrofit:_") {
+        exclude("com.squareup.okhttp3", "okio")
+        exclude("com.squareup.okio", "okhttp")
+    }
     implementation(JakeWharton.retrofit2.converter.kotlinxSerialization)
     implementation(Square.okHttp3.loggingInterceptor)
 
