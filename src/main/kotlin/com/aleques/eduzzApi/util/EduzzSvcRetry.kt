@@ -9,9 +9,11 @@ internal suspend fun <T> eduzzSvcRetry(delayAmount: Long = 1200, service: suspen
             return service()
         } catch (e: HttpException) {
             val code = e.code()
-            if (code == 500 || code == 429) {
-                delay(delayAmount)
-                continue
+            when (code) {
+                429,500, in 502..504 -> {
+                    delay(delayAmount)
+                    continue
+                }
             }
             throw e
         }
