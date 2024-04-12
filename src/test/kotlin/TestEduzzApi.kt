@@ -9,7 +9,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okhttp3.logging.HttpLoggingInterceptor
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -27,9 +26,13 @@ class TestEduzzApi {
     fun initialize() {
         eduzz = EduzzApiProvider(
             EduzzAuthData(
-                dotenv["EDUZZ_LOGIN"], dotenv["EDUZZ_PUBKEY"], dotenv["EDUZZ_APIKEY"]
+                dotenv["EDUZZ_LOGIN"],
+                dotenv["EDUZZ_PUBKEY"],
+                dotenv["EDUZZ_APIKEY"]
             ),
-            defaultEduzzApiHttpClientBuilder.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+            defaultEduzzApiHttpClientBuilder.addInterceptor(
+                HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+            )
                 .build()
         )
         today = LocalDate.now()
@@ -39,10 +42,11 @@ class TestEduzzApi {
     @Test
     fun testFetchFinancialStatements() = runBlocking {
         var saldo = 0.0
-        eduzz.getFinancialStatementList(LocalDate.of(2023, 1, 1), today).forEach {
-            saldo += it.statement_value
-            println("${it.statement_date} ${it.statement_description} ${it.statement_value} = $saldo")
-        }
+        eduzz.getFinancialStatementList(LocalDate.of(2023, 1, 1), today)
+            .forEach {
+                saldo += it.statement_value
+                println("${it.statement_date} ${it.statement_description} ${it.statement_value} = $saldo")
+            }
 
     }
 

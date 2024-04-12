@@ -107,7 +107,7 @@ data class EduzzInvoiceItem(
     var invoice_item_unit_value: Double,
     var invoice_item_quantity: Double,
     var invoice_item_value: Double,
-    var invoice_item_discount_value: Double,
+    var invoice_item_discount_value: Double? = null,
     var invoice_item_freight_type: String? = null,
     var invoice_item_freight_deadline: String? = null,
     var invoice_item_content_id: Long,
