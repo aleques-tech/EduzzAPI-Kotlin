@@ -106,7 +106,7 @@ class EduzzApiProvider(
 //        .registerTypeAdapter(LocalDateTime::class.java,  GsonEduzzTypeAdapter)
 //        .create()
 
-    private val json = Json { isLenient = false; ignoreUnknownKeys = false }
+    private val json = Json { isLenient = false; ignoreUnknownKeys = true }
 
     private val retrofit = setHttpClient(
             Retrofit.Builder().baseUrl(EDUZZBASEURL)
