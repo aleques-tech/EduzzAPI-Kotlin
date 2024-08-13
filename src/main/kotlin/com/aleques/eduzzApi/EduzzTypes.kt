@@ -15,6 +15,7 @@ data class EduzzInvoice(
     var date_create: Date,
     var date_payment: Date? = null,
     var date_update: Date? = null,
+    var date_credit: Date? = null,
     var sale_status: Int,
     var sale_status_name: String? = null,
     var sale_item_id: Long? = null,
