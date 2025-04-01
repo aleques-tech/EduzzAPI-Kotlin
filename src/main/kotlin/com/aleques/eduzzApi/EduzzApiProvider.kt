@@ -3,131 +3,41 @@
 package com.aleques.eduzzApi
 
 
-import com.aleques.eduzzApi.util.defaultEduzzApiHttpClientBuilder
-import com.aleques.eduzzApi.util.eduzzSvcRetry
-import com.aleques.eduzzApi.util.setHttpClient
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.aleques.eduzzApi.util.vertxHttpClient
+import com.aleques.eduzzApi.util.vertxRequest
+import io.vertx.core.json.JsonObject
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
-import retrofit2.Retrofit
-import retrofit2.http.*
 import java.time.LocalDate
-
-
-interface EduzzService {
-    @FormUrlEncoded
-    @POST("credential/generate_token")
-    suspend fun authenticate(
-            @Field("email") email: String, @Field("publickey") publickey: String, @Field("apikey") apikey: String
-    ): EduzzAuthResponse
-
-    @GET("/user/get_me")
-    suspend fun getMe(@Header("token") token: String?): EduzzGetUserResponse
-
-    @GET("/sale/get_sale_list")
-    suspend fun listSales(
-            @Header("token") token: String?,
-            @Query("start_date") startDate: LocalDate? = null,
-            @Query("end_date") endDate: LocalDate? = null,
-            @Query("page") page: Int?,
-            @Query("contract_id") cId: Int? = null,
-            @Query("affiliate_id") affId: Int? = null,
-            @Query("content_id") contId: Int? = null,
-            @Query("invoice_status") invStatus: Int? = null,
-            @Query("client_email") email: String? = null,
-            @Query("client_document") cliDoc: String? = null,
-            @Query("date_type") dateType: String? = null,
-    ): EduzzGetInvoiceResponse
-
-    @GET("/sale/last_days_amount")
-    suspend fun getLastDaysAmount(
-            @Header("token") token: String?, @Query("days") howManyDays: Int?
-    ): EduzzLastDaysAmountResponse
-
-    @GET("/financial/statement")
-    suspend fun getFinancialStatement(
-            @Header("token") token: String?,
-            @Query("start_date") sd: LocalDate,
-            @Query("end_date") ed: LocalDate,
-            @Query("page") page: Int,
-            @Query("per_page") perPage: Int? = 100
-    ): EduzzFinancialStatementResponse
-
-    @GET("/sale/get_sale/{id}")
-    suspend fun getSale(@Header("token") token: String?, @Path("id") saleId: Long): EduzzGetInvoiceResponse
-
-
-    @GET("/fiscal/get_taxdocument/{id}")
-    suspend fun getTaxDocument(@Header("token") token: String?, @Path("id") saleId: Long): EduzzGetTaxDocResponse
-
-    @GET("/fiscal/get_taxdocumentlist")
-    suspend fun getTaxDocumentList(
-            @Header("token") token: String?,
-            @Query("start_date") startDate: LocalDate? = null,
-            @Query("end_date") endDate: LocalDate? = null,
-            @Query("page") page: Int? = null,
-            @Query("per_page") perPage: Int? = 100,
-            @Query("document_status") documentStatus: String? = null,
-            @Query("name") name: String? = null,
-            @Query("email") email: String? = null,
-            @Query("sale_id") saleId: Long? = null
-    ): EduzzGetTaxDocListResponse
-}
-
-private val Response.responseCount: Int
-    get() = generateSequence(this) { it.priorResponse }.count()
-
-class EduzzAuthenticator(private val getToken: () -> String) : Authenticator {
-    override fun authenticate(route: Route?, response: Response): Request? {
-        if (response.responseCount >= 3) {
-            return null
-        }
-        return response.request.newBuilder().header("token", getToken()).build()
-    }
-
-}
 
 @Suppress("unused")
 @ExperimentalSerializationApi
 class EduzzApiProvider(
-        private val eduzzAuthProvider: EduzzAuthData,
-        httpClient: OkHttpClient = defaultEduzzApiHttpClientBuilder.build(),
-        private val retryDelay: Long = 1200L
+    private val eduzzAuthProvider: EduzzAuthData,
+    private val retryDelay: Long = 1200L
 ) {
     companion object {
         private const val EDUZZBASEURL = "https://api2.eduzz.com/"
-        private val contentType = "application/json; charset=utf-8".toMediaType()
     }
 
-    //    val gson = GsonBuilder()
-//        .registerTypeAdapter(LocalDateTime::class.java,  GsonEduzzTypeAdapter)
-//        .create()
-
     private val json = Json { isLenient = false; ignoreUnknownKeys = true }
-
-    private val retrofit = setHttpClient(
-            Retrofit.Builder().baseUrl(EDUZZBASEURL)
-//        .addConverterFactory(GsonConverterFactory.create(gson))
-                    .addConverterFactory(json.asConverterFactory(contentType)),
-            httpClient.newBuilder().authenticator(EduzzAuthenticator {
-                runBlocking { authenticate() }
-                authToken!!
-            }
-            ).build()
-    ).build()
-    private val service = retrofit.create(EduzzService::class.java)
     private var authToken: String? = null
-
 
     private suspend fun authenticate(): Boolean {
         val (email, publicKey, apiKey) = eduzzAuthProvider
-        val reply = eduzzSvcRetry(retryDelay) { service.authenticate(email, publicKey, apiKey) }
-        //println("status: ${reply.isSuccessful} ${reply.body()}")
+        val body = JsonObject()
+            .put("email", email)
+            .put("publickey", publicKey)
+            .put("apikey", apiKey)
+        
+        val reply: EduzzAuthResponse = vertxRequest(
+            method = io.vertx.core.http.HttpMethod.POST,
+            url = "$EDUZZBASEURL/credential/generate_token",
+            body = body
+        )
+        
         authToken = reply.data?.get("token")
-//        println(authToken)
         return true
     }
 
@@ -137,61 +47,76 @@ class EduzzApiProvider(
         }
     }
 
-
     suspend fun getLastDaysSaleAmount(days: Int? = null): List<EduzzLastDaysAmount> {
         checkAuth()
-        val r = eduzzSvcRetry(retryDelay) { service.getLastDaysAmount(authToken, days) }
-        return r.data
+        return vertxRequest(
+            method = io.vertx.core.http.HttpMethod.GET,
+            url = "$EDUZZBASEURL/sale/last_days_amount",
+            headers = mapOf("token" to authToken!!),
+            queryParams = mapOf("days" to days?.toString() ?: "")
+        ).data
     }
 
     suspend fun getSale(id: Long): EduzzGetInvoiceResponse {
         checkAuth()
-        return eduzzSvcRetry(retryDelay) { service.getSale(authToken, id) }
+        return vertxRequest(
+            method = io.vertx.core.http.HttpMethod.GET,
+            url = "$EDUZZBASEURL/sale/get_sale/$id",
+            headers = mapOf("token" to authToken!!)
+        )
     }
 
     suspend fun getOwnUserInfo(): EduzzUserInfo {
         checkAuth()
-        return eduzzSvcRetry(retryDelay) { service.getMe(authToken).data.first() }
+        return vertxRequest<EduzzGetUserResponse>(
+            method = io.vertx.core.http.HttpMethod.GET,
+            url = "$EDUZZBASEURL/user/get_me",
+            headers = mapOf("token" to authToken!!)
+        ).data.first()
     }
 
     suspend fun getSalesList(
-            startDate: LocalDate,
-            endDate: LocalDate,
-            contractId: Int? = null,
-            affiliateId: Int? = null,
-            contentId: Int? = null,
-            invoiceStatus: Int? = null,
-            clientEmail: String? = null,
-            clientDocument: String? = null,
-            dateType: String? = null
+        startDate: LocalDate,
+        endDate: LocalDate,
+        contractId: Int? = null,
+        affiliateId: Int? = null,
+        contentId: Int? = null,
+        invoiceStatus: Int? = null,
+        clientEmail: String? = null,
+        clientDocument: String? = null,
+        dateType: String? = null
     ): List<EduzzInvoice> {
         checkAuth()
         var done = false
         var page = 1
         val retVal = emptyList<EduzzInvoice>().toMutableList()
+        
         do {
-            val r = eduzzSvcRetry(retryDelay) {
-                service.listSales(
-                        authToken,
-                        startDate,
-                        endDate,
-                        page,
-                        contractId,
-                        affiliateId,
-                        contentId,
-                        invoiceStatus,
-                        clientEmail,
-                        clientDocument,
-                        dateType
+            val r: EduzzGetInvoiceResponse = vertxRequest(
+                method = io.vertx.core.http.HttpMethod.GET,
+                url = "$EDUZZBASEURL/sale/get_sale_list",
+                headers = mapOf("token" to authToken!!),
+                queryParams = mapOf(
+                    "start_date" to startDate.toString(),
+                    "end_date" to endDate.toString(),
+                    "page" to page.toString(),
+                    "contract_id" to contractId?.toString() ?: "",
+                    "affiliate_id" to affiliateId?.toString() ?: "",
+                    "content_id" to contentId?.toString() ?: "",
+                    "invoice_status" to invoiceStatus?.toString() ?: "",
+                    "client_email" to clientEmail ?: "",
+                    "client_document" to clientDocument ?: "",
+                    "date_type" to dateType ?: ""
                 )
-            }
-
+            )
+            
             page++
             retVal += r.data
-            if (r.paginator.isNullOrEmpty() || page > (r.paginator!!.getOrDefault("totalPages", 1)
-                            ?: 1)) done =
-                    true
+            if (r.paginator.isNullOrEmpty() || page > (r.paginator!!.getOrDefault("totalPages", 1) ?: 1)) {
+                done = true
+            }
         } while (!done)
+        
         return retVal
     }
 
@@ -200,46 +125,75 @@ class EduzzApiProvider(
         var done = false
         var page = 1
         val retVal = emptyList<EduzzFinancialStatement>().toMutableList()
+        
         do {
-            val r = eduzzSvcRetry(retryDelay) { service.getFinancialStatement(authToken, startDate, endDate, page) }
+            val r: EduzzFinancialStatementResponse = vertxRequest(
+                method = io.vertx.core.http.HttpMethod.GET,
+                url = "$EDUZZBASEURL/financial/statement",
+                headers = mapOf("token" to authToken!!),
+                queryParams = mapOf(
+                    "start_date" to startDate.toString(),
+                    "end_date" to endDate.toString(),
+                    "page" to page.toString()
+                )
+            )
+            
             page++
             retVal += r.data
-            if (r.paginator.isNullOrEmpty() || page > (r.paginator!!.getOrDefault("totalPages", 1)
-                            ?: 1)) done = true
+            if (r.paginator.isNullOrEmpty() || page > (r.paginator!!.getOrDefault("totalPages", 1) ?: 1)) {
+                done = true
+            }
         } while (!done)
+        
         return retVal
     }
 
     suspend fun getTaxDoc(id: Long): EduzzGetTaxDocResponse {
         checkAuth()
-        return eduzzSvcRetry(retryDelay) { service.getTaxDocument(authToken, id) }
+        return vertxRequest(
+            method = io.vertx.core.http.HttpMethod.GET,
+            url = "$EDUZZBASEURL/fiscal/get_taxdocument/$id",
+            headers = mapOf("token" to authToken!!)
+        )
     }
 
     suspend fun getTaxDocList(
-            startDate: LocalDate? = null,
-            endDate: LocalDate? = null,
-            documentStatus: String? = null,
-            name: String? = null,
-            email: String? = null,
-            saleId: Long? = null
+        startDate: LocalDate? = null,
+        endDate: LocalDate? = null,
+        documentStatus: String? = null,
+        name: String? = null,
+        email: String? = null,
+        saleId: Long? = null
     ): List<EduzzTaxDoc> {
         checkAuth()
         var done = false
         var page = 1
         val retVal = emptyList<EduzzTaxDoc>().toMutableList()
+        
         do {
-            val r = eduzzSvcRetry(retryDelay) {
-                service.getTaxDocumentList(
-                        authToken, startDate, endDate, page, 100, documentStatus, name, email, saleId
+            val r: EduzzGetTaxDocListResponse = vertxRequest(
+                method = io.vertx.core.http.HttpMethod.GET,
+                url = "$EDUZZBASEURL/fiscal/get_taxdocumentlist",
+                headers = mapOf("token" to authToken!!),
+                queryParams = mapOf(
+                    "start_date" to startDate?.toString() ?: "",
+                    "end_date" to endDate?.toString() ?: "",
+                    "page" to page.toString(),
+                    "per_page" to "100",
+                    "document_status" to documentStatus ?: "",
+                    "name" to name ?: "",
+                    "email" to email ?: "",
+                    "sale_id" to saleId?.toString() ?: ""
                 )
-            }
+            )
+            
             page++
             retVal += r.data
-            if (r.paginator.isNullOrEmpty() || page > (r.paginator!!.getOrDefault("totalPages", 1)
-                            ?: 1)) {
+            if (r.paginator.isNullOrEmpty() || page > (r.paginator!!.getOrDefault("totalPages", 1) ?: 1)) {
                 done = true
             }
         } while (!done)
+        
         return retVal
     }
 }

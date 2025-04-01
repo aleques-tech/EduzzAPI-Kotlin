@@ -15,13 +15,8 @@ repositories {
 
 dependencies {
     //implementation(platform("org.jetbrains.kotlin:kotlin-bom:_"))
-    compileOnly(Square.okHttp3.okHttp)
-    implementation("com.squareup.retrofit2:retrofit:_") {
-        exclude("com.squareup.okhttp3", "okio")
-        exclude("com.squareup.okio", "okhttp")
-    }
-    implementation(JakeWharton.retrofit2.converter.kotlinxSerialization)
-    implementation(Square.okHttp3.loggingInterceptor)
+    implementation("io.vertx:vertx-web-client:4.5.7")
+    implementation("io.vertx:vertx-lang-kotlin-coroutines:4.5.7")
 
     implementation(KotlinX.serialization.json)
     implementation(KotlinX.coroutines.core)
