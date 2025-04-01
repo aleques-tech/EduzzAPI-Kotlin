@@ -13,8 +13,8 @@ import java.time.Duration
 internal val vertx = Vertx.vertx()
 
 internal val vertxHttpClient = WebClient.create(vertx, WebClientOptions()
-    .setConnectTimeout(Duration.ofSeconds(50).toMillis())
-    .setIdleTimeout(Duration.ofSeconds(120).toMillis())
+    .setConnectTimeout(Duration.ofSeconds(50).toMillis().toInt())
+    .setIdleTimeout(Duration.ofSeconds(120).toMillis().toInt())
     .setMaxPoolSize(20)
 )
 

@@ -53,7 +53,7 @@ class EduzzApiProvider(
             method = io.vertx.core.http.HttpMethod.GET,
             url = "$EDUZZBASEURL/sale/last_days_amount",
             headers = mapOf("token" to authToken!!),
-            queryParams = mapOf("days" to days?.toString() ?: "")
+            queryParams = listOf("days" to (days?.toString() ?: ""))
         ).data
     }
 
@@ -96,17 +96,17 @@ class EduzzApiProvider(
                 method = io.vertx.core.http.HttpMethod.GET,
                 url = "$EDUZZBASEURL/sale/get_sale_list",
                 headers = mapOf("token" to authToken!!),
-                queryParams = mapOf(
+                queryParams = listOf(
                     "start_date" to startDate.toString(),
                     "end_date" to endDate.toString(),
                     "page" to page.toString(),
-                    "contract_id" to contractId?.toString() ?: "",
-                    "affiliate_id" to affiliateId?.toString() ?: "",
-                    "content_id" to contentId?.toString() ?: "",
-                    "invoice_status" to invoiceStatus?.toString() ?: "",
-                    "client_email" to clientEmail ?: "",
-                    "client_document" to clientDocument ?: "",
-                    "date_type" to dateType ?: ""
+                    "contract_id" to (contractId?.toString() ?: ""),
+                    "affiliate_id" to (affiliateId?.toString() ?: ""),
+                    "content_id" to (contentId?.toString() ?: ""),
+                    "invoice_status" to (invoiceStatus?.toString() ?: ""),
+                    "client_email" to (clientEmail ?: ""),
+                    "client_document" to (clientDocument ?: ""),
+                    "date_type" to (dateType ?: "")
                 )
             )
             
@@ -131,7 +131,7 @@ class EduzzApiProvider(
                 method = io.vertx.core.http.HttpMethod.GET,
                 url = "$EDUZZBASEURL/financial/statement",
                 headers = mapOf("token" to authToken!!),
-                queryParams = mapOf(
+                queryParams = listOf(
                     "start_date" to startDate.toString(),
                     "end_date" to endDate.toString(),
                     "page" to page.toString()
@@ -175,15 +175,15 @@ class EduzzApiProvider(
                 method = io.vertx.core.http.HttpMethod.GET,
                 url = "$EDUZZBASEURL/fiscal/get_taxdocumentlist",
                 headers = mapOf("token" to authToken!!),
-                queryParams = mapOf(
-                    "start_date" to startDate?.toString() ?: "",
-                    "end_date" to endDate?.toString() ?: "",
+                queryParams = listOf(
+                    "start_date" to (startDate?.toString() ?: ""),
+                    "end_date" to (endDate?.toString() ?: ""),
                     "page" to page.toString(),
                     "per_page" to "100",
-                    "document_status" to documentStatus ?: "",
-                    "name" to name ?: "",
-                    "email" to email ?: "",
-                    "sale_id" to saleId?.toString() ?: ""
+                    "document_status" to (documentStatus ?: ""),
+                    "name" to (name ?: ""),
+                    "email" to (email ?: ""),
+                    "sale_id" to (saleId?.toString() ?: "")
                 )
             )
             
