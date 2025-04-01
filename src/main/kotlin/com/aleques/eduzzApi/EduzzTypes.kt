@@ -3,13 +3,17 @@
 
 package com.aleques.eduzzApi
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import java.time.LocalDate
 import java.util.*
 
 @Serializable
+@SerialName("EduzzInvoice")
 data class EduzzInvoice(
+    @SerialName("sale_id") 
+    @Required
+    var sale_id: Long,
     var sale_id: Long,
     var contract_id: Long? = null,
     var date_create: Date,
