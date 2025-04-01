@@ -1,13 +1,11 @@
 import com.aleques.eduzzApi.EduzzApiProvider
 import com.aleques.eduzzApi.EduzzAuthData
 import com.aleques.eduzzApi.EduzzTaxDoc
-import com.aleques.eduzzApi.util.defaultEduzzApiHttpClientBuilder
 import io.github.cdimascio.dotenv.dotenv
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import okhttp3.logging.HttpLoggingInterceptor
 import java.time.LocalDate
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -30,10 +28,7 @@ class TestEduzzApi {
                 dotenv["EDUZZ_PUBKEY"],
                 dotenv["EDUZZ_APIKEY"]
             ),
-            defaultEduzzApiHttpClientBuilder.addInterceptor(
-                HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
-            )
-                .build()
+            retryDelay = 1200L
         )
         today = LocalDate.now()
 
