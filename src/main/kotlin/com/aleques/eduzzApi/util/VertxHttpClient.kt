@@ -23,7 +23,7 @@ internal suspend inline fun <reified T> vertxRequest(
     url: String,
     headers: Map<String, String> = emptyMap(),
     body: JsonObject? = null,
-    queryParams: Map<String, String> = emptyMap()
+    queryParams: List<Pair<String, String>> = emptyList()
 ): T {
     val request = vertxHttpClient.requestAbs(method, url)
     
@@ -32,7 +32,9 @@ internal suspend inline fun <reified T> vertxRequest(
     }
     
     queryParams.forEach { (key, value) ->
-        request.addQueryParam(key, value)
+        if (value.isNotEmpty()) {
+            request.addQueryParam(key, value)
+        }
     }
     
     val response = if (body != null) {
