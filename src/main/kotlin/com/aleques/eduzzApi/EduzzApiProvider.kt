@@ -31,7 +31,7 @@ class EduzzApiProvider(
             .put("publickey", publicKey)
             .put("apikey", apiKey)
         
-        val reply = vertxRequest<EduzzAuthResponse>(
+        val reply: EduzzAuthResponse = vertxRequest(
             method = io.vertx.core.http.HttpMethod.POST,
             url = "$EDUZZBASEURL/credential/generate_token",
             body = body
@@ -49,7 +49,7 @@ class EduzzApiProvider(
 
     suspend fun getLastDaysSaleAmount(days: Int? = null): List<EduzzLastDaysAmount> {
         checkAuth()
-        return vertxRequest(
+        return vertxRequest<EduzzLastDaysAmountResponse>(
             method = io.vertx.core.http.HttpMethod.GET,
             url = "$EDUZZBASEURL/sale/last_days_amount",
             headers = mapOf("token" to authToken!!),
@@ -59,7 +59,7 @@ class EduzzApiProvider(
 
     suspend fun getSale(id: Long): EduzzGetInvoiceResponse {
         checkAuth()
-        return vertxRequest(
+        return vertxRequest<EduzzGetInvoiceResponse>(
             method = io.vertx.core.http.HttpMethod.GET,
             url = "$EDUZZBASEURL/sale/get_sale/$id",
             headers = mapOf("token" to authToken!!)
@@ -150,7 +150,7 @@ class EduzzApiProvider(
 
     suspend fun getTaxDoc(id: Long): EduzzGetTaxDocResponse {
         checkAuth()
-        return vertxRequest(
+        return vertxRequest<EduzzGetTaxDocResponse>(
             method = io.vertx.core.http.HttpMethod.GET,
             url = "$EDUZZBASEURL/fiscal/get_taxdocument/$id",
             headers = mapOf("token" to authToken!!)
