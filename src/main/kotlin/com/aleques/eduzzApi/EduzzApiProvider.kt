@@ -31,7 +31,7 @@ class EduzzApiProvider(
             .put("publickey", publicKey)
             .put("apikey", apiKey)
         
-        val reply: EduzzAuthResponse = vertxRequest(
+        val reply = vertxRequest<EduzzAuthResponse>(
             method = io.vertx.core.http.HttpMethod.POST,
             url = "$EDUZZBASEURL/credential/generate_token",
             body = body
