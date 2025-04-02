@@ -11,9 +11,8 @@ import java.util.*
 @Serializable
 @SerialName("EduzzInvoice")
 data class EduzzInvoice(
-    @SerialName("sale_id") 
+    @SerialName("sale_id")
     @Required
-    var sale_id: Long,
     var sale_id: Long,
     var contract_id: Long? = null,
     var date_create: Date,
