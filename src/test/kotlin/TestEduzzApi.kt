@@ -1,6 +1,7 @@
 import com.aleques.eduzzApi.EduzzApiProvider
 import com.aleques.eduzzApi.EduzzAuthData
 import com.aleques.eduzzApi.EduzzTaxDoc
+import com.aleques.eduzzApi.ValidationException
 import io.github.cdimascio.dotenv.dotenv
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi

@@ -13,6 +13,7 @@ import com.aleques.eduzzApi.EduzzGetTaxDocResponse
 import com.aleques.eduzzApi.EduzzLastDaysAmountResponse
 import com.aleques.eduzzApi.EduzzFinancialStatementResponse
 import com.aleques.eduzzApi.ValidationException
+import io.vertx.kotlin.coroutines.coAwait
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
