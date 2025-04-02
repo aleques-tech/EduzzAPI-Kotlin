@@ -18,7 +18,7 @@ dependencies {
     implementation("io.vertx:vertx-web-client:4.5.7")
     implementation("io.vertx:vertx-lang-kotlin-coroutines:4.5.7")
 
-    implementation(KotlinX.serialization.json)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation(KotlinX.coroutines.core)
     implementation("io.github.cdimascio:dotenv-kotlin:_")
 

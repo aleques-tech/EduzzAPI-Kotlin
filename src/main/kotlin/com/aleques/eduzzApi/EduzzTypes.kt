@@ -1,15 +1,16 @@
+@file:UseSerializers(EduzzDateTimeSerializer::class, EduzzAmericanFmtDateSerializer::class)
+@file:Suppress("PropertyName")
+
 package com.aleques.eduzzApi
 
 import com.aleques.eduzzApi.EduzzDateTimeSerializer
 import com.aleques.eduzzApi.EduzzAmericanFmtDateSerializer
-import kotlinx.serialization.ValidationException
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.time.LocalDate
-import java.util.*
+import java.util.Date
 
-@file:UseSerializers(EduzzDateTimeSerializer::class, EduzzAmericanFmtDateSerializer::class)
-@file:Suppress("PropertyName")
+class ValidationException(message: String) : Exception(message)
 
 @Serializable
 @SerialName("EduzzInvoice")
@@ -18,10 +19,10 @@ data class EduzzInvoice(
     @Required
     var sale_id: Long,
     var contract_id: Long? = null,
-    var date_create: Date,
-    var date_payment: Date? = null,
-    var date_update: Date? = null,
-    var date_credit: Date? = null,
+    @Contextual var date_create: Date,
+    @Contextual var date_payment: Date? = null,
+    @Contextual var date_update: Date? = null,
+    @Contextual var date_credit: Date? = null,
     var sale_status: Int,
     var sale_status_name: String? = null,
     var sale_item_id: Long? = null,
@@ -324,7 +325,7 @@ data class EduzzTaxDocumentItem(
 
 @Serializable
 data class EduzzLastDaysAmount(
-    var date: LocalDate,
+    @Contextual var date: LocalDate,
     var sale_discount: Double,
     var sale_amount_win: Double,
     var sale_net_gain: Double,
