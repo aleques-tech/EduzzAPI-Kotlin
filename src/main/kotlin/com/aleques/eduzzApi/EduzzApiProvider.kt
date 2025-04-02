@@ -3,6 +3,7 @@
 package com.aleques.eduzzApi
 
 
+import com.aleques.eduzzApi.util.eduzzSvcRetry
 import com.aleques.eduzzApi.util.vertxHttpClient
 import com.aleques.eduzzApi.util.vertxRequest
 import io.vertx.core.json.JsonObject
@@ -36,11 +37,13 @@ class EduzzApiProvider(
             .put("publickey", publicKey)
             .put("apikey", apiKey)
         
-        val reply: EduzzAuthResponse = vertxRequest(
-            method = io.vertx.core.http.HttpMethod.POST,
-            url = "$EDUZZBASEURL/credential/generate_token",
-            body = body
-        )
+        val reply: EduzzAuthResponse = eduzzSvcRetry(retryDelay) {
+            vertxRequest(
+                method = io.vertx.core.http.HttpMethod.POST,
+                url = "$EDUZZBASEURL/credential/generate_token",
+                body = body
+            )
+        }
         
         authToken = reply.data?.get("token")
         return true
@@ -54,22 +57,26 @@ class EduzzApiProvider(
 
     suspend fun getLastDaysSaleAmount(days: Int? = null): List<EduzzLastDaysAmount> {
         checkAuth()
-        return vertxRequest<EduzzLastDaysAmountResponse>(
-            method = io.vertx.core.http.HttpMethod.GET,
-            url = "$EDUZZBASEURL/sale/last_days_amount",
-            headers = mapOf("token" to authToken!!),
-            queryParams = listOf("days" to (days?.toString() ?: ""))
-        ).data
+        return eduzzSvcRetry(retryDelay) {
+            vertxRequest<EduzzLastDaysAmountResponse>(
+                method = io.vertx.core.http.HttpMethod.GET,
+                url = "$EDUZZBASEURL/sale/last_days_amount",
+                headers = mapOf("token" to authToken!!),
+                queryParams = listOf("days" to (days?.toString() ?: ""))
+            ).data
+        }
     }
 
     suspend fun getSale(id: Long): EduzzGetInvoiceResponse {
         checkAuth()
         return try {
-            vertxRequest<EduzzGetInvoiceResponse>(
-                method = io.vertx.core.http.HttpMethod.GET,
-                url = "$EDUZZBASEURL/sale/get_sale/$id",
-                headers = mapOf("token" to authToken!!)
-            )
+            eduzzSvcRetry(retryDelay) {
+                vertxRequest<EduzzGetInvoiceResponse>(
+                    method = io.vertx.core.http.HttpMethod.GET,
+                    url = "$EDUZZBASEURL/sale/get_sale/$id",
+                    headers = mapOf("token" to authToken!!)
+                )
+            }
         } catch (e: Exception) {
             // Return empty response on error
             EduzzGetInvoiceResponse(
@@ -82,11 +89,13 @@ class EduzzApiProvider(
 
     suspend fun getOwnUserInfo(): EduzzUserInfo {
         checkAuth()
-        return vertxRequest<EduzzGetUserResponse>(
-            method = io.vertx.core.http.HttpMethod.GET,
-            url = "$EDUZZBASEURL/user/get_me",
-            headers = mapOf("token" to authToken!!)
-        ).data.first()
+        return eduzzSvcRetry(retryDelay) {
+            vertxRequest<EduzzGetUserResponse>(
+                method = io.vertx.core.http.HttpMethod.GET,
+                url = "$EDUZZBASEURL/user/get_me",
+                headers = mapOf("token" to authToken!!)
+            ).data.first()
+        }
     }
 
     suspend fun getSalesList(
@@ -106,23 +115,25 @@ class EduzzApiProvider(
         val retVal = emptyList<EduzzInvoice>().toMutableList()
         
         do {
-            val r: EduzzGetInvoiceResponse = vertxRequest(
-                method = io.vertx.core.http.HttpMethod.GET,
-                url = "$EDUZZBASEURL/sale/get_sale_list",
-                headers = mapOf("token" to authToken!!),
-                queryParams = listOf(
-                    "start_date" to startDate.toString(),
-                    "end_date" to endDate.toString(),
-                    "page" to page.toString(),
-                    "contract_id" to (contractId?.toString() ?: ""),
-                    "affiliate_id" to (affiliateId?.toString() ?: ""),
-                    "content_id" to (contentId?.toString() ?: ""),
-                    "invoice_status" to (invoiceStatus?.toString() ?: ""),
-                    "client_email" to (clientEmail ?: ""),
-                    "client_document" to (clientDocument ?: ""),
-                    "date_type" to (dateType ?: "")
+            val r: EduzzGetInvoiceResponse = eduzzSvcRetry(retryDelay) {
+                vertxRequest(
+                    method = io.vertx.core.http.HttpMethod.GET,
+                    url = "$EDUZZBASEURL/sale/get_sale_list",
+                    headers = mapOf("token" to authToken!!),
+                    queryParams = listOf(
+                        "start_date" to startDate.toString(),
+                        "end_date" to endDate.toString(),
+                        "page" to page.toString(),
+                        "contract_id" to (contractId?.toString() ?: ""),
+                        "affiliate_id" to (affiliateId?.toString() ?: ""),
+                        "content_id" to (contentId?.toString() ?: ""),
+                        "invoice_status" to (invoiceStatus?.toString() ?: ""),
+                        "client_email" to (clientEmail ?: ""),
+                        "client_document" to (clientDocument ?: ""),
+                        "date_type" to (dateType ?: "")
+                    )
                 )
-            )
+            }
             
             page++
             retVal += r.data
@@ -141,16 +152,18 @@ class EduzzApiProvider(
         val retVal = emptyList<EduzzFinancialStatement>().toMutableList()
         
         do {
-            val r: EduzzFinancialStatementResponse = vertxRequest(
-                method = io.vertx.core.http.HttpMethod.GET,
-                url = "$EDUZZBASEURL/financial/statement",
-                headers = mapOf("token" to authToken!!),
-                queryParams = listOf(
-                    "start_date" to startDate.toString(),
-                    "end_date" to endDate.toString(),
-                    "page" to page.toString()
+            val r: EduzzFinancialStatementResponse = eduzzSvcRetry(retryDelay) {
+                vertxRequest(
+                    method = io.vertx.core.http.HttpMethod.GET,
+                    url = "$EDUZZBASEURL/financial/statement",
+                    headers = mapOf("token" to authToken!!),
+                    queryParams = listOf(
+                        "start_date" to startDate.toString(),
+                        "end_date" to endDate.toString(),
+                        "page" to page.toString()
+                    )
                 )
-            )
+            }
             
             page++
             retVal += r.data
@@ -164,11 +177,13 @@ class EduzzApiProvider(
 
     suspend fun getTaxDoc(id: Long): EduzzGetTaxDocResponse {
         checkAuth()
-        return vertxRequest<EduzzGetTaxDocResponse>(
-            method = io.vertx.core.http.HttpMethod.GET,
-            url = "$EDUZZBASEURL/fiscal/get_taxdocument/$id",
-            headers = mapOf("token" to authToken!!)
-        )
+        return eduzzSvcRetry(retryDelay) {
+            vertxRequest<EduzzGetTaxDocResponse>(
+                method = io.vertx.core.http.HttpMethod.GET,
+                url = "$EDUZZBASEURL/fiscal/get_taxdocument/$id",
+                headers = mapOf("token" to authToken!!)
+            )
+        }
     }
 
     suspend fun getTaxDocList(
@@ -185,21 +200,23 @@ class EduzzApiProvider(
         val retVal = emptyList<EduzzTaxDoc>().toMutableList()
         
         do {
-            val r: EduzzGetTaxDocListResponse = vertxRequest(
-                method = io.vertx.core.http.HttpMethod.GET,
-                url = "$EDUZZBASEURL/fiscal/get_taxdocumentlist",
-                headers = mapOf("token" to authToken!!),
-                queryParams = listOf(
-                    "start_date" to (startDate?.toString() ?: ""),
-                    "end_date" to (endDate?.toString() ?: ""),
-                    "page" to page.toString(),
-                    "per_page" to "100",
-                    "document_status" to (documentStatus ?: ""),
-                    "name" to (name ?: ""),
-                    "email" to (email ?: ""),
-                    "sale_id" to (saleId?.toString() ?: "")
+            val r: EduzzGetTaxDocListResponse = eduzzSvcRetry(retryDelay) {
+                vertxRequest(
+                    method = io.vertx.core.http.HttpMethod.GET,
+                    url = "$EDUZZBASEURL/fiscal/get_taxdocumentlist",
+                    headers = mapOf("token" to authToken!!),
+                    queryParams = listOf(
+                        "start_date" to (startDate?.toString() ?: ""),
+                        "end_date" to (endDate?.toString() ?: ""),
+                        "page" to page.toString(),
+                        "per_page" to "100",
+                        "document_status" to (documentStatus ?: ""),
+                        "name" to (name ?: ""),
+                        "email" to (email ?: ""),
+                        "sale_id" to (saleId?.toString() ?: "")
+                    )
                 )
-            )
+            }
             
             page++
             retVal += r.data
