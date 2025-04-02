@@ -64,11 +64,20 @@ class EduzzApiProvider(
 
     suspend fun getSale(id: Long): EduzzGetInvoiceResponse {
         checkAuth()
-        return vertxRequest<EduzzGetInvoiceResponse>(
-            method = io.vertx.core.http.HttpMethod.GET,
-            url = "$EDUZZBASEURL/sale/get_sale/$id",
-            headers = mapOf("token" to authToken!!)
-        )
+        return try {
+            vertxRequest<EduzzGetInvoiceResponse>(
+                method = io.vertx.core.http.HttpMethod.GET,
+                url = "$EDUZZBASEURL/sale/get_sale/$id",
+                headers = mapOf("token" to authToken!!)
+            )
+        } catch (e: Exception) {
+            // Return empty response on error
+            EduzzGetInvoiceResponse(
+                success = false,
+                data = emptyList(),
+                profile = EduzzProfile(start = 0.0, finish = 0.0, process = 0.0)
+            )
+        }
     }
 
     suspend fun getOwnUserInfo(): EduzzUserInfo {

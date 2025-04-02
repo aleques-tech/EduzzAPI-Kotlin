@@ -58,15 +58,20 @@ internal suspend inline fun <reified T> vertxRequest(
     }
     
     val jsonString = response.bodyAsString()
-    val result = Json.decodeFromString<T>(jsonString)
-    when (result) {
-        is EduzzAuthResponse -> result.validate()
-        is EduzzGetUserResponse -> result.validate()
-        is EduzzGetInvoiceResponse -> result.validate()
-        is EduzzGetTaxDocResponse -> result.validate()
-        is EduzzLastDaysAmountResponse -> result.validate()
-        is EduzzFinancialStatementResponse -> result.validate()
-        else -> throw ValidationException("Unknown response type")
+    try {
+        val result = Json.decodeFromString<T>(jsonString)
+        when (result) {
+            is EduzzAuthResponse -> result.validate()
+            is EduzzGetUserResponse -> result.validate()
+            is EduzzGetInvoiceResponse -> result.validate()
+            is EduzzGetTaxDocResponse -> result.validate()
+            is EduzzLastDaysAmountResponse -> result.validate()
+            is EduzzFinancialStatementResponse -> result.validate()
+        }
+        return result
+    } catch (e: Exception) {
+        println("Error parsing response: ${e.message}")
+        println("Response body: $jsonString")
+        throw e
     }
-    return result
 }
