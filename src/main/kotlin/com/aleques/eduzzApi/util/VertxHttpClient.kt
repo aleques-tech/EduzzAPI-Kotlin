@@ -6,12 +6,10 @@ import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.WebClient
 import io.vertx.ext.web.client.WebClientOptions
 import io.vertx.kotlin.coroutines.await
+import com.aleques.eduzzApi.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.ValidationException
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import java.time.LocalDate
 import java.time.Duration
 
 internal val vertx = Vertx.vertx()
@@ -101,6 +99,14 @@ internal suspend inline fun <reified T> vertxRequest(
     
     val jsonString = response.bodyAsString()
     val result = Json.decodeFromString<T>(jsonString)
-    validateSchema(result)
+    when (result) {
+        is EduzzAuthResponse -> result.validate()
+        is EduzzGetUserResponse -> result.validate()
+        is EduzzGetInvoiceResponse -> result.validate()
+        is EduzzGetTaxDocResponse -> result.validate()
+        is EduzzLastDaysAmountResponse -> result.validate()
+        is EduzzFinancialStatementResponse -> result.validate()
+        else -> throw ValidationException("Unknown response type")
+    }
     return result
 }

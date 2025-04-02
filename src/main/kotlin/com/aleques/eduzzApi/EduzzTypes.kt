@@ -1,6 +1,9 @@
 @file:UseSerializers(EduzzDateTimeSerializer::class, EduzzAmericanFmtDateSerializer::class)
 @file:Suppress("PropertyName")
 
+import kotlinx.serialization.ValidationException
+import java.time.LocalDate
+
 package com.aleques.eduzzApi
 
 import kotlinx.serialization.*
@@ -136,7 +139,13 @@ data class EduzzProfile(
 @Serializable
 data class EduzzAuthResponse(
     var success: Boolean, var data: Map<String, String?>?, var profile: EduzzProfile
-)
+) {
+    fun validate() {
+        if (data?.get("token").isNullOrEmpty()) {
+            throw ValidationException("Invalid auth response: missing token")
+        }
+    }
+}
 
 @Serializable
 data class EduzzUserInfo(
@@ -176,7 +185,13 @@ data class EduzzGetUserResponse(
     var data: List<EduzzUserInfo>,
     var profile: EduzzProfile,
     var paginator: Map<String, String?>? = emptyMap()
-)
+) {
+    fun validate() {
+        if (data.isEmpty()) {
+            throw ValidationException("Invalid user response: empty data")
+        }
+    }
+}
 
 
 @Serializable
@@ -185,7 +200,13 @@ data class EduzzGetInvoiceResponse(
     var data: List<EduzzInvoice>,
     var profile: EduzzProfile,
     var paginator: Map<String, Int?>? = emptyMap()
-)
+) {
+    fun validate() {
+        if (data.any { it.sale_id <= 0 }) {
+            throw ValidationException("Invalid invoice response: invalid sale_id")
+        }
+    }
+}
 
 @Serializable
 data class EduzzTaxDoc(
@@ -279,7 +300,13 @@ data class EduzzGetTaxDocListResponse(
 @Serializable
 data class EduzzGetTaxDocResponse(
     var success: Boolean, var data: EduzzTaxDoc, var profile: EduzzProfile, var paginator: Map<String, Int?>? = null
-)
+) {
+    fun validate() {
+        if (data.document_id == null || data.document_id!! <= 0) {
+            throw ValidationException("Invalid tax doc response: invalid document_id")
+        }
+    }
+}
 
 @Serializable
 data class EduzzTaxDocumentItem(
@@ -310,7 +337,13 @@ data class EduzzLastDaysAmount(
 @Serializable
 data class EduzzLastDaysAmountResponse(
     var success: Boolean, var data: List<EduzzLastDaysAmount>, var profile: EduzzProfile
-)
+) {
+    fun validate() {
+        if (data.any { it.date > LocalDate.now() }) {
+            throw ValidationException("Invalid last days amount response: future date")
+        }
+    }
+}
 
 
 @Serializable
@@ -328,4 +361,10 @@ data class EduzzFinancialStatementResponse(
     var data: List<EduzzFinancialStatement>,
     var profile: EduzzProfile,
     var paginator: Map<String, Int?>? = emptyMap()
-)
+) {
+    fun validate() {
+        if (data.any { it.statement_value < 0 }) {
+            throw ValidationException("Invalid financial statement response: negative value")
+        }
+    }
+}
