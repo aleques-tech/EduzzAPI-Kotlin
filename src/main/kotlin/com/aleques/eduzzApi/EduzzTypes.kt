@@ -1,11 +1,9 @@
+package com.aleques.eduzzApi
+
 @file:UseSerializers(EduzzDateTimeSerializer::class, EduzzAmericanFmtDateSerializer::class)
 @file:Suppress("PropertyName")
 
 import kotlinx.serialization.ValidationException
-import java.time.LocalDate
-
-package com.aleques.eduzzApi
-
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.time.LocalDate

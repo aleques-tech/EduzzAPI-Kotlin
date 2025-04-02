@@ -6,7 +6,13 @@ import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.WebClient
 import io.vertx.ext.web.client.WebClientOptions
 import io.vertx.kotlin.coroutines.await
-import com.aleques.eduzzApi.*
+import com.aleques.eduzzApi.EduzzAuthResponse
+import com.aleques.eduzzApi.EduzzGetUserResponse
+import com.aleques.eduzzApi.EduzzGetInvoiceResponse
+import com.aleques.eduzzApi.EduzzGetTaxDocResponse
+import com.aleques.eduzzApi.EduzzLastDaysAmountResponse
+import com.aleques.eduzzApi.EduzzFinancialStatementResponse
+import com.aleques.eduzzApi.ValidationException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
