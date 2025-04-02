@@ -47,9 +47,9 @@ internal suspend inline fun <reified T> vertxRequest(
     }
     
     val response = if (body != null) {
-        request.sendJsonObject(body).await()
+        request.sendJsonObject(body).coAwait()
     } else {
-        request.send().await()
+        request.send().coAwait()
     }
     
     if (response.statusCode() !in 200..299) {
