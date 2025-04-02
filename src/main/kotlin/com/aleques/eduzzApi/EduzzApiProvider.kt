@@ -21,7 +21,12 @@ class EduzzApiProvider(
         private const val EDUZZBASEURL = "https://api2.eduzz.com/"
     }
 
-    private val json = Json { isLenient = false; ignoreUnknownKeys = true }
+    private val json = Json { 
+        isLenient = true
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+        explicitNulls = false
+    }
     private var authToken: String? = null
 
     private suspend fun authenticate(): Boolean {
