@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.20-Beta"
+    kotlin("jvm") version "2.0.21"
     kotlin("plugin.serialization")
     id("pl.allegro.tech.build.axion-release")
     `java-library`
@@ -11,6 +11,12 @@ project.version = scmVersion.version
 
 repositories {
     mavenCentral()
+}
+
+// Configure system properties for secure XML processing
+tasks.withType<JavaExec> {
+    systemProperty("javax.xml.accessExternalDTD", "all")
+    systemProperty("javax.xml.accessExternalSchema", "all")
 }
 
 dependencies {
@@ -29,12 +35,14 @@ tasks.test {
     useJUnitPlatform()
     systemProperties["junit.jupiter.execution.parallel.enabled"] = true
     systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
+    systemProperties["javax.xml.accessExternalDTD"] = "all"
+    systemProperties["javax.xml.accessExternalSchema"] = "all"
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
     jvmArgs = listOf("--add-opens", "java.base/java.lang.invoke=ALL-UNNAMED")
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
 }
 
 java {
