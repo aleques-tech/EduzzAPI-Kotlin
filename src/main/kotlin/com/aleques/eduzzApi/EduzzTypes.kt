@@ -1,13 +1,15 @@
 package com.aleques.eduzzApi
 
-@file:UseSerializers(EduzzDateTimeSerializer::class, EduzzAmericanFmtDateSerializer::class)
-@file:Suppress("PropertyName")
-
+import com.aleques.eduzzApi.EduzzDateTimeSerializer
+import com.aleques.eduzzApi.EduzzAmericanFmtDateSerializer
 import kotlinx.serialization.ValidationException
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.time.LocalDate
 import java.util.*
+
+@file:UseSerializers(EduzzDateTimeSerializer::class, EduzzAmericanFmtDateSerializer::class)
+@file:Suppress("PropertyName")
 
 @Serializable
 @SerialName("EduzzInvoice")
