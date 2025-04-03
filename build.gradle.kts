@@ -28,6 +28,10 @@ dependencies {
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
 
     testImplementation(kotlin("test"))
+    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    testImplementation(KotlinX.coroutines.core)
+    testImplementation("io.vertx:vertx-web-client:4.5.7")
+    testImplementation("io.vertx:vertx-lang-kotlin-coroutines:4.5.7")
 }
 
 tasks.test {
