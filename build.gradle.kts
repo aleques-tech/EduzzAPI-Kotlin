@@ -25,9 +25,8 @@ dependencies {
     compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     compileOnly(KotlinX.coroutines.core)
     
-    implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
-
     testImplementation(kotlin("test"))
+    testImplementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     testImplementation(KotlinX.coroutines.core)
     testImplementation("io.vertx:vertx-web-client:4.5.7")
