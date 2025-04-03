@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.1.20"
+    kotlin("jvm")
     kotlin("plugin.serialization")
     id("pl.allegro.tech.build.axion-release")
     `java-library`
@@ -20,17 +20,18 @@ tasks.withType<JavaExec> {
 }
 
 dependencies {
-    compileOnly("io.vertx:vertx-web-client:4.5.7")
-    compileOnly("io.vertx:vertx-lang-kotlin-coroutines:4.5.7")
-    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    compileOnly("io.vertx:vertx-web-client:_")
+    compileOnly("io.vertx:vertx-lang-kotlin-coroutines:_")
+    implementation(KotlinX.serialization.json)
+    implementation(KotlinX.serialization.core)
     compileOnly(KotlinX.coroutines.core)
     
     testImplementation(kotlin("test"))
-    testImplementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    testImplementation("io.github.cdimascio:dotenv-kotlin:_")
+    testImplementation(KotlinX.serialization.json)
     testImplementation(KotlinX.coroutines.core)
-    testImplementation("io.vertx:vertx-web-client:4.5.7")
-    testImplementation("io.vertx:vertx-lang-kotlin-coroutines:4.5.7")
+    testImplementation("io.vertx:vertx-web-client:_")
+    testImplementation("io.vertx:vertx-lang-kotlin-coroutines:_")
 }
 
 tasks.test {

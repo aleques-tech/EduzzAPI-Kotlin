@@ -94,3 +94,10 @@ object GsonEduzzTypeAdapter : TypeAdapter<LocalDateTime?>() {
 
 }
 */
+object EduzzSerializers {
+    val all = listOf(
+        EduzzAmericanFmtDateSerializer,
+        EduzzBrazilianFmtDateSerializer,
+        EduzzDateTimeSerializer
+    )
+}
