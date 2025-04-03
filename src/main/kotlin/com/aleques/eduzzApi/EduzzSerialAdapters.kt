@@ -14,7 +14,11 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.*
 
-internal object EduzzAmericanFmtDateSerializer : KSerializer<LocalDate> {
+@file:JvmName("EduzzSerializers")
+
+package com.aleques.eduzzApi
+
+object EduzzAmericanFmtDateSerializer : KSerializer<LocalDate> {
 
     private val inputFmt = DateTimeFormatter.ofPattern("yyyy[-][/]MM[-][/]dd")
     override val descriptor
@@ -27,7 +31,7 @@ internal object EduzzAmericanFmtDateSerializer : KSerializer<LocalDate> {
     override fun serialize(encoder: Encoder, value: LocalDate) = encoder.encodeString(value.format(inputFmt))
 }
 
-internal object EduzzBrazilianFmtDateSerializer : KSerializer<Date> {
+object EduzzBrazilianFmtDateSerializer : KSerializer<Date> {
     private val inputFmt = SimpleDateFormat("dd/MM/yyyy")
     override val descriptor
         get() = PrimitiveSerialDescriptor("Date", PrimitiveKind.STRING)
@@ -39,7 +43,7 @@ internal object EduzzBrazilianFmtDateSerializer : KSerializer<Date> {
     override fun serialize(encoder: Encoder, value: Date) = encoder.encodeString(inputFmt.format(value))
 }
 
-internal object EduzzDateTimeSerializer : KSerializer<Date> {
+object EduzzDateTimeSerializer : KSerializer<Date> {
 
     //    private val inputFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd[[ ]['T']HH:mm[:ss][X][XXX][X]]")
     private val inputFormat = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.of("UTC"))

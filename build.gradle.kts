@@ -45,6 +45,26 @@ tasks.test {
 
 kotlin {
     jvmToolchain(17)
+    
+    sourceSets {
+        main {
+            kotlin.srcDirs("src/main/kotlin")
+        }
+    }
+    
+    // Explicitly export serializers package
+    compilerOptions {
+        freeCompilerArgs.add("-Xjvm-default=all")
+    }
+}
+
+tasks.jar {
+    manifest {
+        attributes(
+            "Automatic-Module-Name" to "com.aleques.eduzzApi",
+            "Export-Package" to "com.aleques.eduzzApi"
+        )
+    }
 }
 
 java {
