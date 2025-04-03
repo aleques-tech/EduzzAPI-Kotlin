@@ -14,7 +14,6 @@ import com.aleques.eduzzApi.EduzzLastDaysAmountResponse
 import com.aleques.eduzzApi.EduzzFinancialStatementResponse
 import com.aleques.eduzzApi.ValidationException
 import io.vertx.kotlin.coroutines.coAwait
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.Duration
@@ -59,7 +58,12 @@ internal suspend inline fun <reified T> vertxRequest(
     
     val jsonString = response.bodyAsString()
     try {
-        val result = Json.decodeFromString<T>(jsonString)
+        val json = Json { 
+            ignoreUnknownKeys = true 
+            isLenient = true
+            coerceInputValues = true
+        }
+        val result = json.decodeFromString<T>(jsonString)
         when (result) {
             is EduzzAuthResponse -> result.validate()
             is EduzzGetUserResponse -> result.validate()

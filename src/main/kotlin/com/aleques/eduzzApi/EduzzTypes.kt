@@ -1,10 +1,6 @@
-@file:UseSerializers(EduzzDateTimeSerializer::class, EduzzAmericanFmtDateSerializer::class)
 @file:Suppress("PropertyName")
 
 package com.aleques.eduzzApi
-
-import com.aleques.eduzzApi.EduzzDateTimeSerializer
-import com.aleques.eduzzApi.EduzzAmericanFmtDateSerializer
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.time.LocalDate
@@ -19,10 +15,10 @@ data class EduzzInvoice(
     @Required
     var sale_id: Long,
     var contract_id: Long? = null,
-    @Contextual var date_create: Date,
-    @Contextual var date_payment: Date? = null,
-    @Contextual var date_update: Date? = null,
-    @Contextual var date_credit: Date? = null,
+    @Serializable(with = EduzzDateTimeSerializer::class) var date_create: Date,
+    @Serializable(with = EduzzDateTimeSerializer::class) var date_payment: Date? = null,
+    @Serializable(with = EduzzDateTimeSerializer::class) var date_update: Date? = null,
+    @Serializable(with = EduzzDateTimeSerializer::class) var date_credit: Date? = null,
     var sale_status: Int,
     var sale_status_name: String? = null,
     var sale_item_id: Long? = null,
@@ -131,7 +127,7 @@ data class EduzzInvoiceItem(
 data class EduzzProfile(
     var start: Double,
     var token: String? = null,
-    var token_valid_until: Date? = null,
+    @Serializable(with = EduzzDateTimeSerializer::class) var token_valid_until: Date? = null,
     var finish: Double,
     var process: Double
 )
@@ -156,7 +152,7 @@ data class EduzzUserInfo(
     var fantasy: String? = null,
     var taxid: String? = null,
     var api_key: String? = null,
-    var date_user_create: Date? = null,
+    @Serializable(with = EduzzDateTimeSerializer::class) var date_user_create: Date? = null,
     var email: String? = null,
     var telephone: String? = null,
     var telephone2: String? = null,
@@ -217,9 +213,9 @@ data class EduzzTaxDoc(
     var document_status: String?,
     var document_type: String?,
     var document_basevalue: Double?,
-    var document_emissiondate: Date?,
-    var document_referencedate: Date?,
-    var document_processingdate: Date?,
+    @Serializable(with = EduzzDateTimeSerializer::class) var document_emissiondate: Date?,
+    @Serializable(with = EduzzDateTimeSerializer::class) var document_referencedate: Date?,
+    @Serializable(with = EduzzDateTimeSerializer::class) var document_processingdate: Date?,
     var document_file_status: Double?,
     var document_auxvalue1: String?,
     var document_auxvalue2: String?,
@@ -269,7 +265,7 @@ data class EduzzTaxDoc(
     var destination_tel2: String?,
     var destination_cell: String?,
     var sale_id: Long? = null,
-    var date_payment: Date? = null,
+    @Serializable(with = EduzzDateTimeSerializer::class) var date_payment: Date? = null,
     var client_id: Long? = null,
     var client_name: String? = null,
     var client_document: String? = null,
@@ -326,7 +322,7 @@ data class EduzzTaxDocumentItem(
 
 @Serializable
 data class EduzzLastDaysAmount(
-    @Contextual var date: LocalDate,
+    @Serializable(with = EduzzAmericanFmtDateSerializer::class) var date: LocalDate,
     var sale_discount: Double,
     var sale_amount_win: Double,
     var sale_net_gain: Double,

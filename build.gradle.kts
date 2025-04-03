@@ -22,8 +22,8 @@ tasks.withType<JavaExec> {
 dependencies {
     compileOnly("io.vertx:vertx-web-client:_")
     compileOnly("io.vertx:vertx-lang-kotlin-coroutines:_")
-    implementation(KotlinX.serialization.json)
-    implementation(KotlinX.serialization.core)
+    compileOnly(KotlinX.serialization.json)
+    compileOnly(KotlinX.serialization.core)
     compileOnly(KotlinX.coroutines.core)
     
     testImplementation(kotlin("test"))
