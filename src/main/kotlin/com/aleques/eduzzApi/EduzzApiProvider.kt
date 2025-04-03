@@ -4,10 +4,9 @@ package com.aleques.eduzzApi
 
 
 import com.aleques.eduzzApi.util.eduzzSvcRetry
-import com.aleques.eduzzApi.util.vertxHttpClient
 import com.aleques.eduzzApi.util.vertxRequest
+import io.vertx.core.http.HttpMethod.GET
 import io.vertx.core.json.JsonObject
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
@@ -22,7 +21,7 @@ class EduzzApiProvider(
         private const val EDUZZBASEURL = "https://api2.eduzz.com/"
     }
 
-    private val json = Json { 
+    private val json = Json {
         isLenient = true
         ignoreUnknownKeys = true
         coerceInputValues = true
@@ -36,7 +35,7 @@ class EduzzApiProvider(
             .put("email", email)
             .put("publickey", publicKey)
             .put("apikey", apiKey)
-        
+
         val reply: EduzzAuthResponse = eduzzSvcRetry(retryDelay) {
             vertxRequest(
                 method = io.vertx.core.http.HttpMethod.POST,
@@ -44,7 +43,7 @@ class EduzzApiProvider(
                 body = body
             )
         }
-        
+
         authToken = reply.data?.get("token")
         return true
     }
@@ -59,7 +58,7 @@ class EduzzApiProvider(
         checkAuth()
         return eduzzSvcRetry(retryDelay) {
             vertxRequest<EduzzLastDaysAmountResponse>(
-                method = io.vertx.core.http.HttpMethod.GET,
+                method = GET,
                 url = "$EDUZZBASEURL/sale/last_days_amount",
                 headers = mapOf("token" to authToken!!),
                 queryParams = listOf("days" to (days?.toString() ?: ""))
@@ -72,7 +71,7 @@ class EduzzApiProvider(
         return try {
             eduzzSvcRetry(retryDelay) {
                 vertxRequest<EduzzGetInvoiceResponse>(
-                    method = io.vertx.core.http.HttpMethod.GET,
+                    method = GET,
                     url = "$EDUZZBASEURL/sale/get_sale/$id",
                     headers = mapOf("token" to authToken!!)
                 )
@@ -91,7 +90,7 @@ class EduzzApiProvider(
         checkAuth()
         return eduzzSvcRetry(retryDelay) {
             vertxRequest<EduzzGetUserResponse>(
-                method = io.vertx.core.http.HttpMethod.GET,
+                method = GET,
                 url = "$EDUZZBASEURL/user/get_me",
                 headers = mapOf("token" to authToken!!)
             ).data.first()
@@ -113,11 +112,11 @@ class EduzzApiProvider(
         var done = false
         var page = 1
         val retVal = emptyList<EduzzInvoice>().toMutableList()
-        
+
         do {
             val r: EduzzGetInvoiceResponse = eduzzSvcRetry(retryDelay) {
                 vertxRequest(
-                    method = io.vertx.core.http.HttpMethod.GET,
+                    method = GET,
                     url = "$EDUZZBASEURL/sale/get_sale_list",
                     headers = mapOf("token" to authToken!!),
                     queryParams = listOf(
@@ -134,27 +133,34 @@ class EduzzApiProvider(
                     )
                 )
             }
-            
+
             page++
             retVal += r.data
-            if (r.paginator.isNullOrEmpty() || page > (r.paginator!!.getOrDefault("totalPages", 1) ?: 1)) {
+            if (r.paginator.isNullOrEmpty() || page > (r.paginator!!.getOrDefault(
+                    "totalPages",
+                    1
+                ) ?: 1)
+            ) {
                 done = true
             }
         } while (!done)
-        
+
         return retVal
     }
 
-    suspend fun getFinancialStatementList(startDate: LocalDate, endDate: LocalDate): List<EduzzFinancialStatement> {
+    suspend fun getFinancialStatementList(
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): List<EduzzFinancialStatement> {
         checkAuth()
         var done = false
         var page = 1
         val retVal = emptyList<EduzzFinancialStatement>().toMutableList()
-        
+
         do {
             val r: EduzzFinancialStatementResponse = eduzzSvcRetry(retryDelay) {
                 vertxRequest(
-                    method = io.vertx.core.http.HttpMethod.GET,
+                    method = GET,
                     url = "$EDUZZBASEURL/financial/statement",
                     headers = mapOf("token" to authToken!!),
                     queryParams = listOf(
@@ -164,14 +170,18 @@ class EduzzApiProvider(
                     )
                 )
             }
-            
+
             page++
             retVal += r.data
-            if (r.paginator.isNullOrEmpty() || page > (r.paginator!!.getOrDefault("totalPages", 1) ?: 1)) {
+            if (r.paginator.isNullOrEmpty() || page > (r.paginator!!.getOrDefault(
+                    "totalPages",
+                    1
+                ) ?: 1)
+            ) {
                 done = true
             }
         } while (!done)
-        
+
         return retVal
     }
 
@@ -179,7 +189,7 @@ class EduzzApiProvider(
         checkAuth()
         return eduzzSvcRetry(retryDelay) {
             vertxRequest<EduzzGetTaxDocResponse>(
-                method = io.vertx.core.http.HttpMethod.GET,
+                method = GET,
                 url = "$EDUZZBASEURL/fiscal/get_taxdocument/$id",
                 headers = mapOf("token" to authToken!!)
             )
@@ -198,11 +208,11 @@ class EduzzApiProvider(
         var done = false
         var page = 1
         val retVal = emptyList<EduzzTaxDoc>().toMutableList()
-        
+
         do {
             val r: EduzzGetTaxDocListResponse = eduzzSvcRetry(retryDelay) {
                 vertxRequest(
-                    method = io.vertx.core.http.HttpMethod.GET,
+                    method = GET,
                     url = "$EDUZZBASEURL/fiscal/get_taxdocumentlist",
                     headers = mapOf("token" to authToken!!),
                     queryParams = listOf(
@@ -217,14 +227,18 @@ class EduzzApiProvider(
                     )
                 )
             }
-            
+
             page++
             retVal += r.data
-            if (r.paginator.isNullOrEmpty() || page > (r.paginator!!.getOrDefault("totalPages", 1) ?: 1)) {
+            if (r.paginator.isNullOrEmpty() || page > (r.paginator!!.getOrDefault(
+                    "totalPages",
+                    1
+                ) ?: 1)
+            ) {
                 done = true
             }
         } while (!done)
-        
+
         return retVal
     }
 }
