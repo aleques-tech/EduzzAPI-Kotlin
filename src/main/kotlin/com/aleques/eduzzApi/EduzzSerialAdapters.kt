@@ -1,3 +1,5 @@
+@file:JvmName("EduzzSerializers")
+
 package com.aleques.eduzzApi
 
 import kotlinx.serialization.KSerializer
@@ -13,10 +15,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.*
-
-@file:JvmName("EduzzSerializers")
-
-package com.aleques.eduzzApi
 
 object EduzzAmericanFmtDateSerializer : KSerializer<LocalDate> {
 
