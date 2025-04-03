@@ -37,7 +37,7 @@ data class EduzzInvoice(
     var sale_total: Double? = null,
     var sale_total_interest: Double? = null,
     var refund_type: String? = null,
-    var refund_date: Date? = null,
+    @Serializable(with = EduzzDateTimeSerializer::class) var refund_date: Date? = null,
     var refund_value: Double? = null,
     var refund_partial_value: Double? = null,
     var sale_payment_method: String? = null,
@@ -347,7 +347,7 @@ data class EduzzLastDaysAmountResponse(
 @Serializable
 data class EduzzFinancialStatement(
     var statement_id: Long,
-    @Serializable(EduzzBrazilianFmtDateSerializer::class) var statement_date: Date,
+    @Serializable(with = EduzzBrazilianFmtDateSerializer::class) var statement_date: Date,
     var statement_description: String,
     var statement_document: String?,
     var statement_value: Double
