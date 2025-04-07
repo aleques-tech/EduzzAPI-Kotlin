@@ -140,7 +140,7 @@ class EduzzApiProvider(
                         "date_type" to (dateType ?: "")
                     )
                 )
-                it.updateFromHeaders(response.headers)
+                it.updateFromHeaders(headers)
                 response
             }
 
@@ -179,7 +179,7 @@ class EduzzApiProvider(
                         "page" to page.toString()
                     )
                 )
-                it.updateFromHeaders(response.headers)
+                it.updateFromHeaders(headers)
                 response
             }
 
@@ -240,7 +240,7 @@ class EduzzApiProvider(
                         "sale_id" to (saleId?.toString() ?: "")
                     )
                 )
-                it.updateFromHeaders(response.headers)
+                it.updateFromHeaders(headers)
                 response
             }
 
