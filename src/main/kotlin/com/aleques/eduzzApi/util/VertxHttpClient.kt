@@ -33,7 +33,7 @@ internal suspend inline fun <reified T> vertxRequest(
     headers: Map<String, String> = emptyMap(),
     body: JsonObject? = null,
     queryParams: List<Pair<String, String>> = emptyList()
-): T {
+): Pair<T, Map<String, String>> {
     val request = vertxHttpClient.requestAbs(method, url)
     
     headers.forEach { (key, value) ->
@@ -72,7 +72,7 @@ internal suspend inline fun <reified T> vertxRequest(
             is EduzzLastDaysAmountResponse -> result.validate()
             is EduzzFinancialStatementResponse -> result.validate()
         }
-        return result
+        return Pair(result, response.headers().associate { it.key to it.value })
     } catch (e: Exception) {
         println("Error parsing response: ${e.message}")
         println("Response body: $jsonString")
