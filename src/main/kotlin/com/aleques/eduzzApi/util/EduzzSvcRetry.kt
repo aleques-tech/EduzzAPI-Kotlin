@@ -2,20 +2,56 @@ package com.aleques.eduzzApi.util
 
 import io.vertx.core.VertxException
 import kotlinx.coroutines.delay
+import kotlin.random.Random
 
-internal suspend fun <T> eduzzSvcRetry(delayAmount: Long = 1200, service: suspend () -> T): T {
+internal class RateLimitTracker {
+    private var remainingRequests = 30 // Default to max limit
+    private var lastRequestTime = System.currentTimeMillis()
+    private val windowSize = 60_000L // 60 seconds window
+
+    fun updateFromHeaders(headers: Map<String, String>) {
+        headers["x-ratelimit-remaining"]?.toIntOrNull()?.let {
+            remainingRequests = it
+            lastRequestTime = System.currentTimeMillis()
+        }
+    }
+
+    suspend fun ensureRateLimit() {
+        if (remainingRequests <= 1) {
+            val timeSinceLast = System.currentTimeMillis() - lastRequestTime
+            val waitTime = windowSize - timeSinceLast
+            if (waitTime > 0) {
+                delay(waitTime)
+            }
+            remainingRequests = 30 // Reset after waiting
+        }
+    }
+}
+
+internal suspend fun <T> eduzzSvcRetry(
+    maxAttempts: Int = 5,
+    baseDelay: Long = 5000, // 5 seconds base delay
+    service: suspend (RateLimitTracker) -> T
+): T {
+    val rateLimitTracker = RateLimitTracker()
+    var attempt = 0
+    
     while (true) {
         try {
-            return service()
+            rateLimitTracker.ensureRateLimit()
+            return service(rateLimitTracker)
         } catch (e: VertxException) {
+            attempt++
             when {
-                e.message?.contains("429") == true ||
-                e.message?.contains("500") == true ||
-                e.message?.contains("502") == true ||
-                e.message?.contains("503") == true ||
-                e.message?.contains("504") == true -> {
-                    delay(delayAmount)
-                    continue
+                e.message?.contains("429") == true -> {
+                    if (attempt >= maxAttempts) throw e
+                    val jitter = Random.nextLong(0, 1000)
+                    val delayTime = (baseDelay * (1L shl (attempt - 1))) + jitter
+                    delay(minOf(delayTime, 60_000L)) // Cap at 60 seconds
+                }
+                e.message?.contains("50[0234]") == true -> {
+                    if (attempt >= maxAttempts) throw e
+                    delay(1000 * attempt) // Linear backoff for server errors
                 }
                 else -> throw e
             }

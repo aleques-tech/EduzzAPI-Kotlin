@@ -199,12 +199,14 @@ class EduzzApiProvider(
 
     suspend fun getTaxDoc(id: Long): EduzzGetTaxDocResponse {
         checkAuth()
-        return eduzzSvcRetry(retryDelay) {
-            vertxRequest<EduzzGetTaxDocResponse>(
+        return eduzzSvcRetry {
+            val response = vertxRequest<EduzzGetTaxDocResponse>(
                 method = GET,
                 url = "$EDUZZBASEURL/fiscal/get_taxdocument/$id",
                 headers = mapOf("token" to authToken!!)
             )
+            it.updateFromHeaders(response.headers)
+            response
         }
     }
 
