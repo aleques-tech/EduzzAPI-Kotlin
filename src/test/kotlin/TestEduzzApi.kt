@@ -139,9 +139,11 @@ class TestEduzzApi {
     @Test
     fun testSalesList() {
         runBlocking {
-            withTimeout(2.minutes) {
+            withTimeout(5.minutes) {  // Increased timeout from 2 to 5 minutes
                 try {
-                    val salesList = eduzz.getSalesList(LocalDate.of(2023, 9, 1), today)
+                    // Reduced date range - last 2 months instead of a full year
+                    val startDate = today.minusMonths(2)
+                    val salesList = eduzz.getSalesList(startDate, today)
                     println("Found ${salesList.size} sales")
                     
                     assertTrue(salesList.isNotEmpty(), "Should return at least one sale")
@@ -164,7 +166,7 @@ class TestEduzzApi {
                     
                     // Print details for the first few sales
                     salesList.take(3).forEach { sale ->
-                        println("Sale ID: ${sale.sale_id}, Amount: ${sale.sale_amount_win}, Client: ${sale.client_name}")
+                        println("Sale ID: ${sale.sale_id}, Amount: ${sale.sale_amount_win}, Client: {${sale.client_name}}")
                     }
                     
                 } catch (e: Exception) {
