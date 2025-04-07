@@ -47,7 +47,7 @@ internal suspend fun <T> eduzzSvcRetry(
                     if (attempt >= maxAttempts) throw e
                     val jitter = Random.nextLong(0, 1000)
                     val delayTime = (baseDelay * (1L shl (attempt - 1))) + jitter
-                    delay(minOf(delayTime, 60_000L)) // Cap at 60 seconds
+                    delay(minOf(delayTime, 60_000L).toLong()) // Cap at 60 seconds
                 }
                 e.message?.contains("50[0234]") == true -> {
                     if (attempt >= maxAttempts) throw e

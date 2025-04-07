@@ -37,12 +37,12 @@ class EduzzApiProvider(
             .put("apikey", apiKey)
 
         val reply: EduzzAuthResponse = eduzzSvcRetry {
-            val response = vertxRequest(
+            val (response, headers) = vertxRequest<EduzzAuthResponse>(
                 method = io.vertx.core.http.HttpMethod.POST,
                 url = "$EDUZZBASEURL/credential/generate_token",
                 body = body
             )
-            it.updateFromHeaders(response.headers)
+            it.updateFromHeaders(headers)
             response
         }
 
@@ -123,7 +123,7 @@ class EduzzApiProvider(
 
         do {
             val r: EduzzGetInvoiceResponse = eduzzSvcRetry {
-                val response = vertxRequest(
+                val (response, headers) = vertxRequest<EduzzGetInvoiceResponse>(
                     method = GET,
                     url = "$EDUZZBASEURL/sale/get_sale_list",
                     headers = mapOf("token" to authToken!!),
@@ -169,7 +169,7 @@ class EduzzApiProvider(
 
         do {
             val r: EduzzFinancialStatementResponse = eduzzSvcRetry {
-                val response = vertxRequest(
+                val (response, headers) = vertxRequest<EduzzFinancialStatementResponse>(
                     method = GET,
                     url = "$EDUZZBASEURL/financial/statement",
                     headers = mapOf("token" to authToken!!),
@@ -225,7 +225,7 @@ class EduzzApiProvider(
 
         do {
             val r: EduzzGetTaxDocListResponse = eduzzSvcRetry {
-                val response = vertxRequest(
+                val (response, headers) = vertxRequest<EduzzGetTaxDocListResponse>(
                     method = GET,
                     url = "$EDUZZBASEURL/fiscal/get_taxdocumentlist",
                     headers = mapOf("token" to authToken!!),
