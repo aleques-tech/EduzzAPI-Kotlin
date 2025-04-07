@@ -92,7 +92,8 @@ class TestEduzzApi {
     @Test
     fun testTaxDocList() {
         runBlocking {
-        try {
+            withTimeout(2.minutes) {
+                try {
             val taxDocs = eduzz.getTaxDocList(
                 startDate = LocalDate.of(2023, 9, 1), endDate = LocalDate.now()
             ).filter { it.document_type == "Alunos / Clientes" }
@@ -126,16 +127,19 @@ class TestEduzzApi {
         } catch (e: ValidationException) {
             // Log but don't fail the test
             println("Validation warning: ${e.message}")
-        } catch (e: Exception) {
-            e.printStackTrace()
-            fail("Exception during tax doc test: ${e.message}")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                fail("Exception during tax doc test: ${e.message}")
+            }
         }
     }
 
     @Test
     fun testSalesList() {
         runBlocking {
-        try {
+            withTimeout(2.minutes) {
+                try {
             val salesList = eduzz.getSalesList(LocalDate.of(2023, 9, 1), today)
             println("Found ${salesList.size} sales")
             
@@ -162,17 +166,20 @@ class TestEduzzApi {
                 println("Sale ID: ${sale.sale_id}, Amount: ${sale.sale_amount_win}, Client: ${sale.client_name}")
             }
             
-        } catch (e: Exception) {
-            println("Error in sales list: ${e.message}")
-            e.printStackTrace()
-            // Don't fail the test
+                }
+            } catch (e: Exception) {
+                println("Error in sales list: ${e.message}")
+                e.printStackTrace()
+                // Don't fail the test
+            }
         }
     }
 
     @Test
     fun testSingleSaleGet() {
         runBlocking {
-        try {
+            withTimeout(2.minutes) {
+                try {
             val saleResponse = eduzz.getSale(63574904)
             if (saleResponse.data.isNotEmpty()) {
                 val sale = saleResponse.data.first()
@@ -192,17 +199,20 @@ class TestEduzzApi {
             } else {
                 println("No sale found with ID 63574904")
             }
-        } catch (e: Exception) {
-            println("Error in single sale get: ${e.message}")
-            e.printStackTrace()
-            // Log but don't fail the test
+                }
+            } catch (e: Exception) {
+                println("Error in single sale get: ${e.message}")
+                e.printStackTrace()
+                // Log but don't fail the test
+            }
         }
     }
     
     @Test
     fun testLastDaysAmount() {
         runBlocking {
-        try {
+            withTimeout(2.minutes) {
+                try {
             val lastDaysAmounts = eduzz.getLastDaysSaleAmount(30)
             
             assertTrue(lastDaysAmounts.isNotEmpty(), "Should return at least one day's amount")
@@ -227,10 +237,12 @@ class TestEduzzApi {
                 println("Date: ${it.date}, Amount: ${it.sale_amount_win}, Total: ${it.sale_total}")
             }
             
-        } catch (e: Exception) {
-            println("Error in last days amount: ${e.message}")
-            e.printStackTrace()
-            // Don't fail the test
+                }
+            } catch (e: Exception) {
+                println("Error in last days amount: ${e.message}")
+                e.printStackTrace()
+                // Don't fail the test
+            }
         }
     }
 }
