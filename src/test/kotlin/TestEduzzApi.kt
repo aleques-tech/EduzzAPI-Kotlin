@@ -18,6 +18,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration.Companion.minutes
 
 @ExperimentalSerializationApi
 class TestEduzzApi {
@@ -48,7 +50,9 @@ class TestEduzzApi {
     }
 
     @Test
-    fun testFetchFinancialStatements() = runBlocking {
+    fun testFetchFinancialStatements() {
+        runBlocking {
+            withTimeout(2.minutes) {
         try {
             var saldo = 0.0
             val statements = eduzz.getFinancialStatementList(LocalDate.of(2023, 1, 1), today)
@@ -82,10 +86,12 @@ class TestEduzzApi {
             e.printStackTrace()
             // Don't fail the test
         }
+        }
     }
 
     @Test
-    fun testTaxDocList() = runBlocking {
+    fun testTaxDocList() {
+        runBlocking {
         try {
             val taxDocs = eduzz.getTaxDocList(
                 startDate = LocalDate.of(2023, 9, 1), endDate = LocalDate.now()
@@ -127,7 +133,8 @@ class TestEduzzApi {
     }
 
     @Test
-    fun testSalesList() = runBlocking {
+    fun testSalesList() {
+        runBlocking {
         try {
             val salesList = eduzz.getSalesList(LocalDate.of(2023, 9, 1), today)
             println("Found ${salesList.size} sales")
@@ -163,7 +170,8 @@ class TestEduzzApi {
     }
 
     @Test
-    fun testSingleSaleGet() = runBlocking {
+    fun testSingleSaleGet() {
+        runBlocking {
         try {
             val saleResponse = eduzz.getSale(63574904)
             if (saleResponse.data.isNotEmpty()) {
@@ -192,7 +200,8 @@ class TestEduzzApi {
     }
     
     @Test
-    fun testLastDaysAmount() = runBlocking {
+    fun testLastDaysAmount() {
+        runBlocking {
         try {
             val lastDaysAmounts = eduzz.getLastDaysSaleAmount(30)
             
