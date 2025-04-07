@@ -59,13 +59,13 @@ class EduzzApiProvider(
     suspend fun getLastDaysSaleAmount(days: Int? = null): List<EduzzLastDaysAmount> {
         checkAuth()
         return eduzzSvcRetry {
-            val response = vertxRequest<EduzzLastDaysAmountResponse>(
+            val (response, headers) = vertxRequest<EduzzLastDaysAmountResponse>(
                 method = GET,
                 url = "$EDUZZBASEURL/sale/last_days_amount",
                 headers = mapOf("token" to authToken!!),
                 queryParams = listOf("days" to (days?.toString() ?: ""))
             )
-            it.updateFromHeaders(response.headers)
+            it.updateFromHeaders(headers)
             response.data
         }
     }
@@ -74,12 +74,12 @@ class EduzzApiProvider(
         checkAuth()
         return try {
             eduzzSvcRetry {
-                val response = vertxRequest<EduzzGetInvoiceResponse>(
+                val (response, headers) = vertxRequest<EduzzGetInvoiceResponse>(
                     method = GET,
                     url = "$EDUZZBASEURL/sale/get_sale/$id",
                     headers = mapOf("token" to authToken!!)
                 )
-                it.updateFromHeaders(response.headers)
+                it.updateFromHeaders(headers)
                 response
             }
         } catch (e: Exception) {
@@ -95,12 +95,12 @@ class EduzzApiProvider(
     suspend fun getOwnUserInfo(): EduzzUserInfo {
         checkAuth()
         return eduzzSvcRetry {
-            val response = vertxRequest<EduzzGetUserResponse>(
+            val (response, headers) = vertxRequest<EduzzGetUserResponse>(
                 method = GET,
                 url = "$EDUZZBASEURL/user/get_me",
                 headers = mapOf("token" to authToken!!)
             )
-            it.updateFromHeaders(response.headers)
+            it.updateFromHeaders(headers)
             response.data.first()
         }
     }
@@ -200,12 +200,12 @@ class EduzzApiProvider(
     suspend fun getTaxDoc(id: Long): EduzzGetTaxDocResponse {
         checkAuth()
         return eduzzSvcRetry {
-            val response = vertxRequest<EduzzGetTaxDocResponse>(
+            val (response, headers) = vertxRequest<EduzzGetTaxDocResponse>(
                 method = GET,
                 url = "$EDUZZBASEURL/fiscal/get_taxdocument/$id",
                 headers = mapOf("token" to authToken!!)
             )
-            it.updateFromHeaders(response.headers)
+            it.updateFromHeaders(headers)
             response
         }
     }
